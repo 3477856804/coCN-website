@@ -356,6 +356,37 @@
       section h2 { font-size: 22px; }
     }
   </style>
+
+  <style>
+    /* === Interactive examples pane === */
+    .pane { border: 1px solid var(--rule); border-radius: var(--radius-lg); overflow: hidden; background: var(--page-surface); }
+    .pane__tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px; border-bottom: 1px solid var(--rule); background: var(--bg2); }
+    .ptab { border: 1px solid transparent; background: transparent; color: var(--muted); font: 600 14px/1 var(--font-sans); padding: 8px 16px; border-radius: 999px; cursor: pointer; transition: background .16s ease, color .16s ease; }
+    .ptab:hover { color: var(--ink); }
+    .ptab.is-active { background: var(--page-brand); color: #fff; }
+    .pane__body { padding: 20px; }
+    .panel { display: none; }
+    .panel.is-active { display: block; }
+    .panel pre { background: var(--page-ink); color: #EDEAE4; border-radius: var(--radius-md); padding: 16px 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.8; margin-bottom: 14px; }
+    .panel pre .tok-kw { color: #F5A32C; font-weight: 600; }
+    .panel pre .tok-fn { color: #7FB8FF; }
+    .panel pre .tok-num { color: #7FE0B8; }
+    .panel pre .tok-str { color: #C7D26B; }
+    .panel pre .tok-com { color: #7C7A72; font-style: italic; }
+    .pout b { display: block; font-size: 12px; letter-spacing: .1em; color: var(--page-brand); margin-bottom: 6px; }
+    .pout__box { background: linear-gradient(180deg, #05241a, #0a3325); color: #bffbe3; border-radius: var(--radius-md); padding: 12px 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
+    .pout__box .note { color: #86b9a4; font-size: 12px; }
+
+    /* === Scroll reveal + back to top === */
+    [data-reveal] { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+    [data-reveal].revealed { opacity: 1; transform: none; }
+    .totop { position: fixed; right: 22px; bottom: 22px; z-index: 50; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--rule); background: var(--page-ink); color: #fff; font-size: 20px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .25s ease, background .2s ease; box-shadow: 0 10px 30px rgba(198,33,46,.28); }
+    .totop.show { opacity: 1; pointer-events: auto; }
+    .totop:hover { background: var(--page-brand); }
+    @media (prefers-reduced-motion: reduce) {
+      [data-reveal] { opacity: 1 !important; transform: none !important; transition: none; }
+    }
+  </style>
 </head>
 <body>
   <nav class="sitenav" aria-label="主导航">
@@ -516,6 +547,43 @@
           <div class="callout"><strong>想编译成独立二进制？</strong> 运行 <code class="inline-code">./co --编译 程序.co 程序</code> 即可，产物仅依赖 libc/libm，不依赖解释器。</div>
         </section>
 
+        <!-- ============ Examples ============ -->
+        <section id="examples">
+          <div class="sec-head">
+            <span class="kicker">示例速览</span>
+            <h2>中文长什么样，点开就看懂</h2>
+            <p class="lead">三组小例子把「变量与输出」「循环」「张量与自动求导」一次讲明白。右侧为预期输出（示意，非在线运行）。</p>
+          </div>
+          <div class="pane">
+            <div class="pane__tabs" role="tablist" aria-label="示例切换">
+              <button class="ptab is-active" role="tab" aria-selected="true" data-tab="t1">你好，语言</button>
+              <button class="ptab" role="tab" aria-selected="false" data-tab="t2">自由循环</button>
+              <button class="ptab" role="tab" aria-selected="false" data-tab="t3">张量 · 自动求导</button>
+            </div>
+            <div class="pane__body">
+              <div class="panel is-active" id="t1" role="tabpanel">
+                <pre><code>常量 问候 = <span class="tok-str">"你好，coCN"</span>
+<span class="tok-kw">输出</span> 问候        <span class="tok-com"># 打印一行文本</span></code></pre>
+                <div class="pout"><b>输出</b><div class="pout__box">你好，coCN</div></div>
+              </div>
+              <div class="panel" id="t2" role="tabpanel">
+                <pre><code><span class="tok-kw">对于</span> i <span class="tok-kw">从</span> <span class="tok-num">1</span> <span class="tok-kw">到</span> <span class="tok-num">3</span> <span class="tok-kw">循环</span>
+    <span class="tok-kw">输出</span> <span class="tok-str">"第 "</span>, i, <span class="tok-str">" 次：让代码开口说中文"</span>
+<span class="tok-kw">结束</span></code></pre>
+                <div class="pout"><b>输出</b><div class="pout__box">第 1 次：让代码开口说中文<br>第 2 次：让代码开口说中文<br>第 3 次：让代码开口说中文</div></div>
+              </div>
+              <div class="panel" id="t3" role="tabpanel">
+                <pre><code>让 x = <span class="tok-fn">张量</span>([<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>])
+让 w = <span class="tok-kw">需梯度</span>(<span class="tok-fn">全零</span>([<span class="tok-num">3</span>]))
+损失 = <span class="tok-fn">均方误差</span>(x * w, <span class="tok-fn">张量</span>([<span class="tok-num">1</span>,<span class="tok-num">1</span>,<span class="tok-num">1</span>]))
+<span class="tok-fn">反向</span>(损失)      <span class="tok-com"># 一次算子反向自动求出梯度</span>
+<span class="tok-kw">输出</span> w.梯度     <span class="tok-com"># 打印每个参数的偏导</span></code></pre>
+                <div class="pout"><b>输出</b><div class="pout__box">[-1.0, -2.0, -3.0]&nbsp;<span class="note">（示意）</span></div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- ============ Safety / semantics ============ -->
         <section id="safety">
           <div class="sec-head">
@@ -657,5 +725,41 @@
       </footer>
     </div>
   </article>
+  <script>
+    (function () {
+      /* Scroll reveal */
+      var targetList = '.sec-head,.hl-cards,.metric-grid,.feat,.code-card,.pane,.video-box,.gallery,.brand-grid,.report-overview__summary,.cta-band';
+      var nodes = document.querySelectorAll(targetList);
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduce && 'IntersectionObserver' in window) {
+        nodes.forEach(function (el) {
+          el.setAttribute('data-reveal', '');
+          var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); }
+            });
+          }, { threshold: 0.1 });
+          io.observe(el);
+        });
+      }
+      /* Interactive examples tabs */
+      var tabs = document.querySelectorAll('.ptab');
+      function showTab(btn) {
+        tabs.forEach(function (x) { x.classList.remove('is-active'); x.setAttribute('aria-selected', 'false'); });
+        btn.classList.add('is-active'); btn.setAttribute('aria-selected', 'true');
+        var id = btn.getAttribute('data-tab');
+        document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('is-active'); });
+        var t = document.getElementById(id); if (t) t.classList.add('is-active');
+      }
+      tabs.forEach(function (b) { b.addEventListener('click', function () { showTab(this); }); });
+      /* Back to top */
+      var bt = document.createElement('button');
+      bt.className = 'totop'; bt.setAttribute('aria-label', '返回顶部'); bt.textContent = '↑';
+      document.body.appendChild(bt);
+      function onScroll() { bt.classList.toggle('show', window.scrollY > 600); }
+      window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+      bt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    })();
+  </script>
 </body>
 </html>
